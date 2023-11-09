@@ -8,6 +8,7 @@ var scene;
 var light;
 var character = {height: 1.8, speed:0.2, turnSpeed:Math.PI*0.02};
 var floorMesh;
+var floorLength = 10000;
 
 function init() {
     scene = new THREE.Scene();
@@ -22,14 +23,27 @@ function init() {
     scene.add(mesh);
 
    //ground needs texture
-    const floorGeometry = new THREE.PlaneGeometry(150, 10000); // Adjust the size as needed
-    const floorMaterial = new THREE.MeshBasicMaterial({ color: "#6F4E37", wireframe:true });
+    const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
+    const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
+    stonePathTexture.wrapT = THREE.RepeatWrapping;
+    stonePathTexture.wrapS = THREE.MirroredRepeatWrapping;
+    stonePathTexture.repeat.set(2,400); // adjust right value as needed
+    const floorMaterial = new THREE.MeshBasicMaterial({
+        color: "#6F4E37",
+        //wireframe: true, // doesn't show texture if true
+        map: stonePathTexture
+    });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = Math.PI / 2; // Rotate the floor to be horizontal
+    floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
     scene.add(floor);
 
-
-
+    // add Wireframe to separate lanes
+    const lanesGeometry = new THREE.PlaneGeometry(150, floorLength);
+    const lanesMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+    const lanes = new THREE.Mesh(lanesGeometry, lanesMaterial);
+    lanes.rotation.x = Math.PI / 2;
+    lanes.position.y = floor.position.x + 0.2;
+    scene.add(lanes);
 
     //light need to create sun object
     light = new THREE.DirectionalLight(0xffffff, 1.0);

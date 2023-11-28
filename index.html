@@ -2,12 +2,30 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>My first three.js app</title>
+		<title>Space Runner</title>
 		<style>
 			body { margin: 0; }
+			#scoreContainer {
+				position: absolute;
+				top: 40px;
+				right: 300px;
+				color: white;
+				font-size: 24px;
+			}
+			#highScoreContainer {
+				position: absolute;
+				top: 10px;
+				right: 300px;
+				color: white;
+				font-size: 24px;
+			}
+			
+
 		</style>
 	</head>
 	<body>
+		<div id="scoreContainer">Score: 0</div>
+    	<div id="highScoreContainer">High Score: 0</div>
 		<script type="module" src="/main.js"></script>
         <script src="./three.js"> </script> 
         <canvas class = "webgl"></canvas>

@@ -8,14 +8,37 @@ var scene;
 var light;
 var character = {height: 1.8, speed:0.2, turnSpeed:Math.PI*0.02};
 var floorMesh;
-var floorLength = 10000;
+var floorLength = 15000;
+var isJumping = false;
+var jumpHeight = 40; 
+var isFalling = false;
+let score = 0;
+let highScore = 0;
+
+// Set interval to update score every 5000 milliseconds (5 seconds)
+setInterval(updateScore, 2000);
+
 
 function init() {
     scene = new THREE.Scene();
+      const baseColorTexture = new THREE.TextureLoader().load("./metallic/Metal_006_basecolor.jpg");
+    const normalMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_normal.jpg");
+    const roughnessMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_roughness.jpg");
+    const metallicMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_metallic.jpg");
+    const heightMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_height.jpg");
+    const ambientMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_ambientOcclusion.jpg");
     const geometry = new THREE.SphereGeometry(10, 20, 20);
     const material = new THREE.MeshStandardMaterial({
-        color: "#C0E61D",
-        wireframe:true
+       // color: "#C0E61D",
+        map: baseColorTexture,
+        normalMap: normalMapTexture,
+        roughnessMap: roughnessMapTexture,
+        metalnessMap: metallicMapTexture,
+        aoMap: ambientMapTexture,
+        displacementMap: heightMapTexture,
+        displacementScale: 0.2,
+        
+       // wireframe:true
        // metalness: 0.0
     });
     mesh = new THREE.Mesh(geometry, material);
@@ -23,27 +46,30 @@ function init() {
     scene.add(mesh);
 
    //ground needs texture
-    const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
-    const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
-    stonePathTexture.wrapT = THREE.RepeatWrapping;
-    stonePathTexture.wrapS = THREE.MirroredRepeatWrapping;
-    stonePathTexture.repeat.set(2,400); // adjust right value as needed
-    const floorMaterial = new THREE.MeshBasicMaterial({
-        color: "#6F4E37",
-        //wireframe: true, // doesn't show texture if true
-        map: stonePathTexture
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
-    scene.add(floor);
+   const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
+   const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
+   stonePathTexture.wrapT = THREE.RepeatWrapping;
+   stonePathTexture.wrapS = THREE.MirroredRepeatWrapping;
+   stonePathTexture.repeat.set(2,400); // adjust right value as needed
+   const floorMaterial = new THREE.MeshBasicMaterial({
+       color: "#6F4E37",
+       //wireframe: true, // doesn't show texture if true
+       map: stonePathTexture
+   });
+   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+   floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
+   scene.add(floor);
 
-    // add Wireframe to separate lanes
-    const lanesGeometry = new THREE.PlaneGeometry(150, floorLength);
-    const lanesMaterial = new THREE.MeshBasicMaterial({wireframe: true});
-    const lanes = new THREE.Mesh(lanesGeometry, lanesMaterial);
-    lanes.rotation.x = Math.PI / 2;
-    lanes.position.y = floor.position.x + 0.2;
-    scene.add(lanes);
+   // add Wireframe to separate lanes
+   const lanesGeometry = new THREE.PlaneGeometry(150, floorLength);
+   const lanesMaterial = new THREE.MeshBasicMaterial({wireframe: true});
+   const lanes = new THREE.Mesh(lanesGeometry, lanesMaterial);
+   lanes.rotation.x = Math.PI / 2;
+   lanes.position.y = floor.position.x + 0.2;
+   scene.add(lanes);
+
+
+
 
     //light need to create sun object
     light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -60,13 +86,13 @@ function init() {
     //render
     const canvas = document.querySelector(".webgl");
     renderer = new THREE.WebGLRenderer({ canvas });
-    renderer.setSize(1520, 750);
+    renderer.setSize(1320, 660);
     renderer.render(scene, camera);
 
     // Create a skybox
     const spaceTexture = new THREE.TextureLoader().load('space.jpg');
     const spaceBackground = new THREE.Mesh(
-        new THREE.BoxGeometry(1000, 1000, 1000),
+        new THREE.BoxGeometry(1000, 1000, 15000),
         new THREE.MeshBasicMaterial({ map: spaceTexture, side: THREE.BackSide })
     );
     scene.add(spaceBackground);
@@ -74,13 +100,13 @@ function init() {
     // Generating stars
     const starsGeometry = new THREE.BufferGeometry();
     const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff });
-    const starsCount = 10000;
+    const starsCount = 100000;
 
     const starsPositions = [];
     for (let i = 0; i < starsCount; i++) {
         const x = (Math.random() - 0.5) * 2000;
         const y = (Math.random() - 0.5) * 2000;
-        const z = (Math.random() - 0.5) * 2000;
+        const z = (Math.random() - 0.5) * 15000;
         starsPositions.push(x, y, z);
     }
 
@@ -121,15 +147,66 @@ function animate() {
     }
 
     //Adjust OBJECT positon
-    if(keyboard[65]){
-        mesh.position.x -= character.speed * 5;
+    if(keyboard[65]){ // A key for left
+        if(mesh.position.x > -75){
+            mesh.position.x -= character.speed * 5;
+        }
     }
 
-    if(keyboard[68]){
-        mesh.position.x += character.speed * 5;
+    if(keyboard[68]){ //D Key for right 
+        if(mesh.position.x < 75){
+            mesh.position.x += character.speed * 5;
+        }
+        
+    }
+
+    if (keyboard[87] && !isJumping){ 
+        isJumping = true;
+        jump();
     }
 
     renderer.render(scene, camera);
+}
+function jump() {
+    const initialY = mesh.position.y;
+    const jumpSpeed = character.speed * 4;
+
+    function animateJump() {
+        // Jumping up phase
+        if (mesh.position.y < initialY + jumpHeight && !isFalling) {
+            mesh.position.y += jumpSpeed;
+            mesh.position.z -= character.speed * 2;
+            requestAnimationFrame(animateJump);
+        } 
+        // Falling down phase
+        else if (mesh.position.y > initialY) {
+            isFalling = true;
+            mesh.position.y -= jumpSpeed;
+            mesh.position.z -= character.speed * 2;
+            requestAnimationFrame(animateJump);
+        } 
+        // Reset after completing the jump
+        else {
+            isJumping = false;
+            isFalling = false;
+            mesh.position.y = initialY; // Ensure accurate final position
+        }
+    }
+
+    animateJump();
+}
+
+function updateScore(){
+    score += 100;
+    document.getElementById('scoreContainer').innerText = 'Score: ' + score;
+}
+
+
+function updateHighScore() {
+    if (score > highScore) {
+        highScore = score;
+        document.getElementById('highScoreContainer').innerText = 'High Score: ' + highScore;
+    }
 }
 
 // Set up keyboard event listeners

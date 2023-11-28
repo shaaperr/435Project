@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 var keyboard = {};
 var mesh;
+var meshBound;
 var renderer;
 var camera;
 var scene;
@@ -14,6 +15,7 @@ var jumpHeight = 40;
 var isFalling = false;
 let score = 0;
 let highScore = 0;
+let obstacleBoxes = [];
 
 // Set interval to update score every 5000 milliseconds (5 seconds)
 setInterval(updateScore, 2000);
@@ -27,7 +29,7 @@ function init() {
     const metallicMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_metallic.jpg");
     const heightMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_height.jpg");
     const ambientMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_ambientOcclusion.jpg");
-    const geometry = new THREE.SphereGeometry(10, 20, 20);
+    const geometry = new THREE.SphereGeometry(15, 20, 20);
     const material = new THREE.MeshStandardMaterial({
        // color: "#C0E61D",
         map: baseColorTexture,
@@ -42,8 +44,9 @@ function init() {
        // metalness: 0.0
     });
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.y = character.height + 10;
+    mesh.position.y = character.height + 15;
     scene.add(mesh);
+    meshBound = new THREE.Sphere(mesh.position, 15);
 
    //ground needs texture
    const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
@@ -118,6 +121,21 @@ function init() {
         starsPositions.push(x, y, z);
     }
 
+    for (let i = 0; i < 15; i++) {
+        let x = Math.floor(Math.random() * 3);
+        if (x == 0) {
+            x = -50;
+        }
+        else if (x == 1) {
+            x = 0;
+        }
+        else {
+            x = 50;
+        }
+        const z = -Math.floor(Math.random() * floorLength / 2);
+        createObstacle(x, 10, z);
+    }
+
     starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPositions, 3));
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
@@ -173,8 +191,25 @@ function animate() {
         jump();
     }
 
+    // meshBound.copy(mesh.geometry.boundingSphere).applyMatrix4(mesh.matrixWorld);
+
+    checkCollisions();
     renderer.render(scene, camera);
 }
+
+function createObstacle(x, y, z) {
+    const obstacleGeometry = new THREE.BoxGeometry(20, 20, 20);
+    const obstacleMesh = new THREE.MeshBasicMaterial( {color: 0x777777});
+    const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMesh);
+    obstacle.position.set(x, y, z);
+
+    const obstacleBox = new  THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    obstacleBox.setFromObject(obstacle);
+
+    obstacleBoxes.push(obstacleBox);
+    scene.add(obstacle);
+}
+
 function jump() {
     const initialY = mesh.position.y;
     const jumpSpeed = character.speed * 4;
@@ -214,6 +249,14 @@ function updateHighScore() {
     if (score > highScore) {
         highScore = score;
         document.getElementById('highScoreContainer').innerText = 'High Score: ' + highScore;
+    }
+}
+
+function checkCollisions() {
+    for (var obstacle of obstacleBoxes) {
+        if (meshBound.intersectsBox(obstacle)) {
+            console.log("Intersects!");
+        }
     }
 }
 

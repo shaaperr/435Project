@@ -60,13 +60,21 @@ function init() {
    floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
    scene.add(floor);
 
-   // add Wireframe to separate lanes
-   const lanesGeometry = new THREE.PlaneGeometry(150, floorLength);
-   const lanesMaterial = new THREE.MeshBasicMaterial({wireframe: true});
-   const lanes = new THREE.Mesh(lanesGeometry, lanesMaterial);
-   lanes.rotation.x = Math.PI / 2;
-   lanes.position.y = floor.position.x + 0.2;
-   scene.add(lanes);
+    const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+    const leftLinePoints = [];
+    leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, -floorLength / 2));
+    leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, floorLength / 2));
+    const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
+    const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
+    scene.add(leftLine);
+
+    const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+    const rightLinePoints = [];
+    rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, -floorLength / 2));
+    rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, floorLength / 2));
+    const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
+    const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
+    scene.add(rightLine);
 
 
 

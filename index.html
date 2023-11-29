@@ -5,25 +5,76 @@
 		<title>Space Runner</title>
 		<style>
 			body { margin: 0; }
+
+			#startScreen {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: url('./screen/start.jpg') center/cover no-repeat;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+        	}
+
+			#gameTitle {
+				top: 60%;
+				left: 50%;
+				transform: translate(26%, 250%);
+				padding: 10px 20px;
+				font-size: 80px;
+				color: white;
+				margin-bottom: 20px;
+				font-family: 'MyFont', sans-serif; /* Apply the custom font */
+
+			}
+
+			#startButton {
+				position: absolute;
+				font-family: 'MyFont', sans-serif; /* Apply the custom font */
+				top: 60%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				padding: 20px 30px;
+				font-size: 24px;
+				cursor: pointer;
+				background-color: #000000;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				display: none;
+			}
+
 			#scoreContainer {
 				position: absolute;
 				top: 40px;
-				right: 300px;
+				right: 100px;
 				color: white;
 				font-size: 24px;
 			}
 			#highScoreContainer {
 				position: absolute;
 				top: 10px;
-				right: 300px;
+				right: 100px;
 				color: white;
 				font-size: 24px;
 			}
 			
+			@font-face {
+            font-family: 'MyFont'; 
+            src: url('./font_over/fo.otf') format('truetype'); 
+        }
 
 		</style>
 	</head>
 	<body>
+		<div id="startScreen">
+			<div id="gameTitle">Space Runner</div>
+			Press the "Start" button to begin
+		</div>
+		<button id="startButton">Start</button>
 		<div id="scoreContainer">Score: 0</div>
     	<div id="highScoreContainer">High Score: 0</div>
 		<script type="module" src="/main.js"></script>

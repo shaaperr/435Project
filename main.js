@@ -8,7 +8,7 @@ var camera;
 var scene;
 var light;
 var light2;
-var character = {height: 1.8, speed:0.29, turnSpeed:Math.PI*.02};
+var character = {height: 1.8, speed:.29, turnSpeed:Math.PI*.02};
 var floorMesh;
 var floorLength = 15000;
 var isJumping = false;
@@ -67,7 +67,6 @@ function init() {
 
 
 
-    //ground needs texture
     const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
     const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
     stonePathTexture.wrapT = THREE.RepeatWrapping;
@@ -140,7 +139,8 @@ function init() {
         starsPositions.push(x, y, z);
     }
 
-    for (let i = 0; i < 15; i++) {
+    // Generating obstacles
+    for (let i = 0; i < 75; i++) {
         let x = Math.floor(Math.random() * 3);
         if (x == 0) {
             x = -50;
@@ -151,8 +151,10 @@ function init() {
         else {
             x = 50;
         }
-        const z = -Math.floor(Math.random() * floorLength / 2);
-        createObstacle(x, 10, z);
+        const obstacleSections = 100
+        const section = -Math.floor(Math.random() * (obstacleSections - 2) + 2);
+        const z = section * (floorLength / 2) / obstacleSections;
+        createObstacle(x, z);
     }
 
 
@@ -227,11 +229,12 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-function createObstacle(x, y, z) {
-    const obstacleGeometry = new THREE.BoxGeometry(20, 20, 20);
+function createObstacle(x, z) {
+    const obstacleHeight = 15;
+    const obstacleGeometry = new THREE.BoxGeometry(20, 15, 20);
     const obstacleMesh = new THREE.MeshBasicMaterial( {color: 0x777777});
     const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMesh);
-    obstacle.position.set(x, y, z);
+    obstacle.position.set(x, obstacleHeight / 2, z);
 
     const obstacleBox = new  THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
     obstacleBox.setFromObject(obstacle);

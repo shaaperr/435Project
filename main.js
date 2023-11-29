@@ -7,7 +7,8 @@ var renderer;
 var camera;
 var scene;
 var light;
-var character = {height: 1.8, speed:0.2, turnSpeed:Math.PI*0.02};
+var light2;
+var character = {height: 1.8, speed:0.29, turnSpeed:Math.PI*.02};
 var floorMesh;
 var floorLength = 15000;
 var isJumping = false;
@@ -23,69 +24,87 @@ setInterval(updateScore, 2000);
 
 function init() {
     scene = new THREE.Scene();
-      const baseColorTexture = new THREE.TextureLoader().load("./metallic/Metal_006_basecolor.jpg");
-    const normalMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_normal.jpg");
-    const roughnessMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_roughness.jpg");
-    const metallicMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_metallic.jpg");
-    const heightMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_height.jpg");
-    const ambientMapTexture = new THREE.TextureLoader().load("./metallic/Metal_006_ambientOcclusion.jpg");
-    const geometry = new THREE.SphereGeometry(15, 20, 20);
+    
+    const baseColorTexture = new THREE.TextureLoader().load("./metallic/Metal_006_basecolor.jpg");
+    const normalMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_normal-dx.png");
+    const roughnessMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_roughness.png");
+    const metallicMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_metallic.png");
+    const heightMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_height.png");
+    const ambientMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_ao.png");
+    const albedoMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_albedo.png");
+    const geometry = new THREE.SphereGeometry(14, 20, 20);
+    
+        //environmentMap
+        const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(128, {
+            format: THREE.RBGFormat,
+            generateMipmaps: true,
+            minFilter: THREE.LinearMipMapLinearFilter,
+            //encoding: THREE.sRGBEncoding
+    
+        })
+    
     const material = new THREE.MeshStandardMaterial({
-       // color: "#C0E61D",
-        map: baseColorTexture,
-        normalMap: normalMapTexture,
+        color: "#FFFFFF",
+        map: albedoMapTexture,  // Set albedo texture as the color map
+       normalMap: normalMapTexture,
         roughnessMap: roughnessMapTexture,
         metalnessMap: metallicMapTexture,
         aoMap: ambientMapTexture,
         displacementMap: heightMapTexture,
-        displacementScale: 0.2,
-        
+        displacementScale: 2.2,
+       envMap: cubeRenderTarget.texture,
        // wireframe:true
-       // metalness: 0.0
+        metalness: 1.0
     });
     mesh = new THREE.Mesh(geometry, material);
-    mesh.position.y = character.height + 15;
+    mesh.position.y = character.height + 14;
+    mesh.geometry.attributes.uv2 = mesh.geometry.attributes.uv
     scene.add(mesh);
     meshBound = new THREE.Sphere(mesh.position, 15);
 
-   //ground needs texture
-   const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
-   const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
-   stonePathTexture.wrapT = THREE.RepeatWrapping;
-   stonePathTexture.wrapS = THREE.MirroredRepeatWrapping;
-   stonePathTexture.repeat.set(2,400); // adjust right value as needed
-   const floorMaterial = new THREE.MeshBasicMaterial({
-       color: "#6F4E37",
-       //wireframe: true, // doesn't show texture if true
-       map: stonePathTexture
-   });
-   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-   floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
-   scene.add(floor);
 
-    const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
-    const leftLinePoints = [];
-    leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, -floorLength / 2));
-    leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, floorLength / 2));
-    const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
-    const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
-    scene.add(leftLine);
 
-    const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
-    const rightLinePoints = [];
-    rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, -floorLength / 2));
-    rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, floorLength / 2));
-    const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
-    const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
-    scene.add(rightLine);
 
+
+
+    //ground needs texture
+    const floorGeometry = new THREE.PlaneGeometry(150, floorLength); // Adjust the size as needed
+    const stonePathTexture = new THREE.TextureLoader().load("./textures/stone-texture.jpg");
+    stonePathTexture.wrapT = THREE.RepeatWrapping;
+    stonePathTexture.wrapS = THREE.MirroredRepeatWrapping;
+    stonePathTexture.repeat.set(2,400); // adjust right value as needed
+    const floorMaterial = new THREE.MeshBasicMaterial({
+        color: "#6F4E37",
+        //wireframe: true, // doesn't show texture if true
+        map: stonePathTexture
+    });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
+    scene.add(floor);
+ 
+     const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+     const leftLinePoints = [];
+     leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, -floorLength / 2));
+     leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, floorLength / 2));
+     const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
+     const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
+     scene.add(leftLine);
+ 
+     const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+     const rightLinePoints = [];
+     rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, -floorLength / 2));
+     rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, floorLength / 2));
+     const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
+     const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
+     scene.add(rightLine);
 
 
 
     //light need to create sun object
-    light = new THREE.DirectionalLight(0xffffff, 1.0);
-    light.position.set(0, 5, 35); //x, y, z
+    light = new THREE.DirectionalLight(0xffffff, 2.0);
+    light.position.set(0, 5, 9); //x, y, z
     scene.add(light);
+
 
 
     //camera
@@ -136,6 +155,7 @@ function init() {
         createObstacle(x, 10, z);
     }
 
+
     starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPositions, 3));
     const stars = new THREE.Points(starsGeometry, starsMaterial);
     scene.add(stars);
@@ -151,6 +171,12 @@ function init() {
 
     animate();
 }
+// Define different camera positions
+const defaultCameraPosition = new THREE.Vector3(0, 20, 90);
+
+// Set the initial camera position
+let currentCameraPosition = defaultCameraPosition.clone();
+
 
 // Function to animate the scene
 function animate() {
@@ -158,13 +184,18 @@ function animate() {
 
     // Automatic forward movement
     mesh.position.z -= character.speed;
-    mesh.rotation.x -= .31;
+    mesh.rotation.x -= .15;
 
     // Update the camera's position to follow the object
     camera.position.set(mesh.position.x, mesh.position.y + 20, mesh.position.z + 90);
 
-    // Adjust the camera rotation based on keyboard input
-    if (keyboard[37]) { // left key
+    if (keyboard[86]) {  // V KEY to change to sideview, have to hold
+        camera.position.set(mesh.position.x + 90, mesh.position.y + 20, mesh.position.z);
+        camera.lookAt(mesh.position);
+    }
+
+      // Adjust the camera rotation based on keyboard input
+      if (keyboard[37]) { // left key
         camera.rotation.y += character.turnSpeed;
     }
 
@@ -190,8 +221,7 @@ function animate() {
         isJumping = true;
         jump();
     }
-
-    // meshBound.copy(mesh.geometry.boundingSphere).applyMatrix4(mesh.matrixWorld);
+      // meshBound.copy(mesh.geometry.boundingSphere).applyMatrix4(mesh.matrixWorld);
 
     checkCollisions();
     renderer.render(scene, camera);
@@ -209,6 +239,7 @@ function createObstacle(x, y, z) {
     obstacleBoxes.push(obstacleBox);
     scene.add(obstacle);
 }
+
 
 function jump() {
     const initialY = mesh.position.y;
@@ -260,13 +291,23 @@ function checkCollisions() {
     }
 }
 
+
 // Set up keyboard event listeners
 window.addEventListener("keydown", (event) => {
     keyboard[event.keyCode] = true;
+    
 });
 
 window.addEventListener("keyup", (event) => {
     keyboard[event.keyCode] = false;
+
+    // Check for the left key release
+    if (event.keyCode === 86) {
+        // Reset the camera position to the default position
+        currentCameraPosition.copy(defaultCameraPosition);
+        camera.position.copy(currentCameraPosition);
+        camera.lookAt(new THREE.Vector3(0, character.height, 0));
+    }
 });
 
 window.onload = init;

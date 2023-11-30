@@ -8,7 +8,7 @@ var camera;
 var scene;
 var light;
 var light2;
-var character = {height: 1.8, speed:0.29, turnSpeed:Math.PI*.02};
+var character = {height: 1.8, speed:0.4, turnSpeed:Math.PI*.02};
 var floorMesh;
 var floorLength = 15000;
 var isJumping = false;
@@ -18,6 +18,7 @@ let score = 0;
 let highScore = 0;
 let obstacleBoxes = [];
 let gameStarted = false;
+let acceleration  = 0.0001;
 
 
 
@@ -199,7 +200,7 @@ function init() {
         // Create a skybox
         const spaceTexture = new THREE.TextureLoader().load('space.jpg');
         const spaceBackground = new THREE.Mesh(
-            new THREE.BoxGeometry(1000, 1000, 15000),
+            new THREE.BoxGeometry(1000, 1000, 100000),
             new THREE.MeshBasicMaterial({ map: spaceTexture, side: THREE.BackSide })
         );
         scene.add(spaceBackground);
@@ -207,13 +208,13 @@ function init() {
         // Generating stars
         const starsGeometry = new THREE.BufferGeometry();
         const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff });
-        const starsCount = 100000;
+        const starsCount = 500000;
 
         const starsPositions = [];
         for (let i = 0; i < starsCount; i++) {
             const x = (Math.random() - 0.5) * 2000;
             const y = (Math.random() - 0.5) * 2000;
-            const z = (Math.random() - 0.5) * 15000;
+            const z = (Math.random() - 0.5) * 100000;
             starsPositions.push(x, y, z);
         }
 
@@ -241,53 +242,61 @@ function init() {
 
         // Set up keyboard event listeners
         window.addEventListener("keydown", (event) => {
-            keyboard[event.keyCode] = true;
+            keyboard[event] = true;
         });
 
         window.addEventListener("keyup", (event) => {
-            keyboard[event.keyCode] = false;
+            keyboard[event] = false;
         });
 
         animate();
     }
 }
     
-// Define different camera positions
-const defaultCameraPosition = new THREE.Vector3(0, 20, 90);
-
-// Set the initial camera position
-let currentCameraPosition = defaultCameraPosition.clone();
-
-//For smooth lane change transitions
+//For smooth lane change transitions and camera movement with v
 function lerp(start, end, alpha) {
     return start * (1 - alpha) + end * alpha;
 }
+
+let cameraRotation = 0;
+
 // Function to animate the scene
 function animate() {
     requestAnimationFrame(animate);
 
     // Automatic forward movement
-    mesh.position.z -= character.speed;
-    mesh.rotation.x -= .15;
+    mesh.position.z -= (character.speed += acceleration);
+    mesh.rotation.x -= 0.15;
+
+    // Print the current speed to the console
+    console.log("Speed:", character.speed);
 
     // Update the camera's position to follow the object
     camera.position.set(mesh.position.x, mesh.position.y + 50, mesh.position.z + 90);
 
     if (keyboard[86]) {  // V KEY to change to sideview, have to hold
-        camera.position.set(mesh.position.x + 90, mesh.position.y + 20, mesh.position.z);
-        camera.lookAt(mesh.position);
+        const targetRotation = 0; 
+        cameraRotation = lerp(cameraRotation, targetRotation, 0.3);
     }
 
       // Adjust the camera rotation based on keyboard input
       if (keyboard[37]) { // left key
-        camera.rotation.y += character.turnSpeed;
+        cameraRotation += character.turnSpeed;
     }
-
+    
     if (keyboard[39]) { // right key
-        camera.rotation.y -= character.turnSpeed;
+        cameraRotation -= character.turnSpeed;
     }
-
-
+    
+    // Update the camera's position to follow the object and rotate around the sphere
+    const radius = 90;
+    camera.position.set(
+        mesh.position.x + radius * Math.sin(cameraRotation),
+        mesh.position.y + 50,
+        mesh.position.z + radius * Math.cos(cameraRotation)
+    );
+    camera.lookAt(mesh.position);
+    
 
     if (keyboard[65]) { // A key for left
         if (mesh.position.x > -75) {
@@ -395,13 +404,7 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("keyup", (event) => {
     keyboard[event.keyCode] = false;
 
-    // Check for the left key release
-    if (event.keyCode === 86) {
-        // Reset the camera position to the default position
-        currentCameraPosition.copy(defaultCameraPosition);
-        camera.position.copy(currentCameraPosition);
-        camera.lookAt(new THREE.Vector3(0, character.height, 0));
-    }
+
 });
 
 window.onload = init;

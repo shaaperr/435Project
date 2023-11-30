@@ -61,7 +61,45 @@
 				color: white;
 				font-size: 24px;
 			}
-			
+
+			#gameOverScreen {
+				position: absolute;
+				top: 20%;
+				left: 20%;
+				width: 60%;
+				height: 60%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				display: none;
+			}
+
+			#gameOverText {
+				padding: 10px 20px;
+				font-size: 80px;
+				color: white;
+				margin-bottom: 20px;
+				font-family: 'MyFont', sans-serif; /* Apply the custom font */
+				display: none;
+			}
+
+			#restartButton {
+				position: absolute;
+				font-family: 'MyFont', sans-serif; /* Apply the custom font */
+				top: 60%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				padding: 20px 30px;
+				font-size: 24px;
+				cursor: pointer;
+				background-color: #000000;
+				color: white;
+				border: none;
+				border-radius: 5px;
+				display: none;
+			}
+
 			@font-face {
             font-family: 'MyFont'; 
             src: url('./font_over/fo.otf') format('truetype'); 
@@ -73,7 +111,11 @@
 		<div id="startScreen">
 			<div id="gameTitle">Space Runner</div>
 		</div>
+		<div id="gameOverScreen">
+			<div id="gameOverText">Game Over</div>
+		</div>
 		<button id="startButton">Start</button>
+		<button id="restartButton">Try Again</button>
 		<div id="scoreContainer">Score: 0</div>
     	<div id="highScoreContainer">High Score: 0</div>
 		<script type="module" src="/main.js"></script>

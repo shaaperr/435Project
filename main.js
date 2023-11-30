@@ -16,6 +16,7 @@ var jumpHeight = 60;
 var isFalling = false;
 let score = 0;
 let highScore = 0;
+let obstacles = [];
 let obstacleBoxes = [];
 let gameStarted = false;
 let acceleration  = 0.0001;
@@ -29,7 +30,9 @@ function init() {
      document.getElementById('startButton').style.display = 'block';
      document.getElementById('scoreContainer').style.display = 'none';
      document.getElementById('highScoreContainer').style.display = 'none';
- 
+     document.getElementById('gameOverScreen').style.display = 'none';
+     document.getElementById('gameOverText').style.display = 'none';
+
      // Set up button click event listener to start the game
      document.getElementById('startButton').addEventListener('click', startGame);
  
@@ -38,7 +41,10 @@ function init() {
             // Hide the start screen and button
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('startButton').style.display = 'none';
-    
+
+            document.getElementById('gameOverScreen').style.display = 'none';
+            document.getElementById('gameOverText').style.display = 'none';
+
             // Show the score containers
             document.getElementById('scoreContainer').style.display = 'block';
             document.getElementById('highScoreContainer').style.display = 'block';
@@ -260,6 +266,9 @@ let cameraRotation = 0;
 
 // Function to animate the scene
 function animate() {
+    if (!gameStarted) {
+        return;
+    }
     requestAnimationFrame(animate);
 
     // Automatic forward movement
@@ -388,6 +397,12 @@ function checkCollisions() {
     for (var obstacle of obstacleBoxes) {
         if (meshBound.intersectsBox(obstacle)) {
             console.log("Intersects!");
+            document.getElementById('gameOverScreen').style.display = 'flex';
+            document.getElementById('gameOverText').style.display = 'flex';
+            gameStarted = false;
+            
+            setTimeout(() => { document.getElementById('restartButton').style.display = 'flex'; }, 5000);
+
         }
     }
 }

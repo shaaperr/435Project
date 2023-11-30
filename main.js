@@ -8,9 +8,9 @@ var camera;
 var scene;
 var light;
 var light2;
-var character = {height: 1.8, speed:0.4, turnSpeed:Math.PI*.02};
+var character = {height: 1.8, speed:0.6, turnSpeed:Math.PI*.02};
 var floorMesh;
-var floorLength = 15000;
+var floorLength = 25000;
 var isJumping = false;
 var jumpHeight = 60; 
 var isFalling = false;
@@ -62,8 +62,8 @@ function init() {
                 // Start the game, making sure nothing is rendered until the button is clicked
                 renderEverything();
                 animate();
-                // Set interval to update score every 2000 milliseconds (2 seconds), moved to wait until game starts to begin. Interval can be changed
-                setInterval(updateScore, 8000);
+                // Set interval to update score every 600 milliseconds, moved to wait until game starts to begin. Interval can be changed
+                setInterval(updateScore, 600);
             }
             
         }
@@ -307,10 +307,10 @@ function animate() {
 
     // Automatic forward movement
     mesh.position.z -= (character.speed += acceleration);
-    mesh.rotation.x -= 0.15;
+    mesh.rotation.x -= (0.15 + acceleration); //rotation now increases as sphere accelerates
 
     // Print the current speed to the console
-    // console.log("Speed:", character.speed);
+    // console.log("Speed:", mesh.rotation.x);
 
     // Update the camera's position to follow the object
     camera.position.set(mesh.position.x, mesh.position.y + 50, mesh.position.z + 90);
@@ -318,7 +318,7 @@ function animate() {
     //Update Sun position
     sunMesh.position.set(mesh.position.x - 100, mesh.position.y + 200, mesh.position.z - 1500);
 
-    if (keyboard[86]) {  // V KEY to change to sideview, have to hold
+    if (keyboard[86]) {  // V KEY to place camera back behind character
         const targetRotation = 0; 
         cameraRotation = lerp(cameraRotation, targetRotation, 0.3);
     }
@@ -390,7 +390,7 @@ function createObstacle(x, z) {
 
 function jump() {
     const initialY = mesh.position.y;
-    const jumpSpeed = character.speed * 4;
+    const jumpSpeed = character.speed * 3; //matches char speed better at 3, not 4
 
     function animateJump() {
         // Jumping up phase

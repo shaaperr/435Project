@@ -156,23 +156,21 @@ function init() {
         floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
         scene.add(floor);
 
-            const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
-            const leftLinePoints = [];
-            leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, -floorLength / 2));
-            leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, floorLength / 2));
-            const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
-            const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
-            scene.add(leftLine);
+        const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+        const leftLinePoints = [];
+        leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 6.0, -floorLength / 2));
+        leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 6.0, floorLength / 2));
+        const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
+        const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
+        scene.add(leftLine);
 
-            const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
-            const rightLinePoints = [];
-            rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, -floorLength / 2));
-            rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, floorLength / 2));
-            const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
-            const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
-            scene.add(rightLine);
-
-
+        const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
+        const rightLinePoints = [];
+        rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 6.0, -floorLength / 2));
+        rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 6.0, floorLength / 2));
+        const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
+        const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
+        scene.add(rightLine);
 
         //light need to create sun object
         light = new THREE.DirectionalLight(0xffffff, 2.0);

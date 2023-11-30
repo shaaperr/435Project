@@ -269,7 +269,7 @@ function animate() {
     mesh.rotation.x -= 0.15;
 
     // Print the current speed to the console
-    console.log("Speed:", character.speed);
+    // console.log("Speed:", character.speed);
 
     // Update the camera's position to follow the object
     camera.position.set(mesh.position.x, mesh.position.y + 50, mesh.position.z + 90);
@@ -331,11 +331,11 @@ function animate() {
 }
 
 function createObstacle(x, z) {
-    const obstacleHeight = 15;
-    const obstacleGeometry = new THREE.BoxGeometry(20, 15, 20);
+    const obstacleHeight = 20; // Change obstacle height here
+    const obstacleGeometry = new THREE.BoxGeometry(20, obstacleHeight, 20);
     const obstacleMesh = new THREE.MeshBasicMaterial( {color: 0x777777});
     const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMesh);
-    obstacle.position.set(x, obstacleHeight / 2, z);
+    obstacle.position.set(x, obstacleHeight / 2 + 3, z);
 
     const obstacleBox = new  THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
     obstacleBox.setFromObject(obstacle);

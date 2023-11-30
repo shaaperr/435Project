@@ -19,14 +19,15 @@ let highScore = 0;
 let obstacleBoxes = [];
 let gameStarted = false;
 let acceleration  = 0.0001;
+var sunMesh;
 
 
 
 
 function init() {
      // Display the start screen and button, nothing else should be shown
-     document.getElementById('startScreen').style.display = 'block';
-     document.getElementById('startButton').style.display = 'block';
+     document.getElementById('startScreen').style.display = 'inline-block';
+     document.getElementById('startButton').style.display = 'inline-block';
      document.getElementById('scoreContainer').style.display = 'none';
      document.getElementById('highScoreContainer').style.display = 'none';
  
@@ -40,11 +41,11 @@ function init() {
             document.getElementById('startButton').style.display = 'none';
     
             // Show the score containers
-            document.getElementById('scoreContainer').style.display = 'block';
-            document.getElementById('highScoreContainer').style.display = 'block';
+            document.getElementById('scoreContainer').style.display = 'inline-block';
+            document.getElementById('highScoreContainer').style.display = 'inline-block';
     
             // Show the canvas
-            document.querySelector('.webgl').style.display = 'block';
+            document.querySelector('.webgl').style.display = 'inline-block';
     
             // Remove the button click event listener
             document.getElementById('startButton').removeEventListener('click', startGame);
@@ -56,7 +57,7 @@ function init() {
                 renderEverything();
                 animate();
                 // Set interval to update score every 2000 milliseconds (2 seconds), moved to wait until game starts to begin. Interval can be changed
-                setInterval(updateScore, 2000);
+                setInterval(updateScore, 8000);
             }
             
         }
@@ -97,6 +98,8 @@ function init() {
             metalness: 1.0
         });
         mesh = new THREE.Mesh(geometry, material);
+        //mesh.castShadow = true;
+        //mesh.receiveShadow = false;
         mesh.position.y = character.height + 14;
         mesh.geometry.attributes.uv2 = mesh.geometry.attributes.uv
         scene.add(mesh);
@@ -153,8 +156,11 @@ function init() {
 
         });
         const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+        //floor.receiveShadow = true;
         floor.rotation.x = 3 * Math.PI / 2; // Rotate the floor to be horizontal
         scene.add(floor);
+
+        
 
             const leftLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
             const leftLinePoints = [];
@@ -162,6 +168,7 @@ function init() {
             leftLinePoints.push(new THREE.Vector3(-(150 / 3) / 2, 0.2, floorLength / 2));
             const leftLineGeometry = new THREE.BufferGeometry().setFromPoints(leftLinePoints);
             const leftLine = new THREE.Line(leftLineGeometry, leftLineMaterial);
+            //leftLine.receiveShadow = true;
             scene.add(leftLine);
 
             const rightLineMaterial = new THREE.LineBasicMaterial({color: 0x000000});
@@ -170,37 +177,64 @@ function init() {
             rightLinePoints.push(new THREE.Vector3((150 / 3) / 2, 0.2, floorLength / 2));
             const rightLineGeometry = new THREE.BufferGeometry().setFromPoints(rightLinePoints);
             const rightLine = new THREE.Line(rightLineGeometry, rightLineMaterial);
+            //rightLine.receiveShadow = true;
             scene.add(rightLine);
 
 
 
         //light need to create sun object
-        light = new THREE.DirectionalLight(0xffffff, 2.0);
+        light = new THREE.DirectionalLight(0xffffff, 2);
         light.position.set(0, 5, 9); //x, y, z
         scene.add(light);
 
-        light2 = new THREE.DirectionalLight(0xffffff, .1);
-        light2.position.set(0, 14, 0); //x, y, z
-        scene.add(light2);
+        //light2 = new THREE.DirectionalLight(0xffffff, 0.1);
+        //light2.position.set(0, 14, 0); //x, y, z
+        //scene.add(light2);
 
+        //sun
+        const sunGeo = new THREE.SphereGeometry(100, 64, 64);
+        const sunMaterial = new THREE.MeshStandardMaterial({
+            color: "#FFDB58"
+        });
+        sunMesh = new THREE.Mesh(sunGeo, sunMaterial);
+        sunMesh.position.set(-100, 300, -2000);
+        const sunLight = new THREE.DirectionalLight( 0xffcf2a, 4);
+        sunLight.position.set(-100, 300, -2000);
+        //sunLight.castShadow = true;
+        scene.add(sunLight);
+        scene.add(sunMesh);
 
+        //Set up shadow properties for the light
+        //sunLight.shadow.mapSize.width = window.innerWidth; // default
+        //sunLight.shadow.mapSize.height = window.innerHeight; // default
+        //sunLight.shadow.camera.near = 5; // default
+        //sunLight.shadow.camera.far = 2500; // default
 
         //camera
-        camera = new THREE.PerspectiveCamera(90, 1280 / 720, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.set(0, 20, 90);
-        camera.lookAt(new THREE.Vector3(0, character.height, 0));
+        //camera.lookAt(new THREE.Vector3(0, character.height, 0));
         scene.add(camera);
 
         //render
         const canvas = document.querySelector(".webgl");
         renderer = new THREE.WebGLRenderer({ canvas });
+        //renderer.shadowMap.enabled = true;
+        //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(window.innerWidth, window.innerHeight); //modified for full screen
         renderer.render(scene, camera);
+
+        //Automatic resize window
+        window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        })
 
         // Create a skybox
         const spaceTexture = new THREE.TextureLoader().load('space.jpg');
         const spaceBackground = new THREE.Mesh(
-            new THREE.BoxGeometry(1000, 1000, 100000),
+            new THREE.BoxGeometry(window.innerWidth, window.innerHeight, 100000),
             new THREE.MeshBasicMaterial({ map: spaceTexture, side: THREE.BackSide })
         );
         scene.add(spaceBackground);
@@ -274,6 +308,9 @@ function animate() {
     // Update the camera's position to follow the object
     camera.position.set(mesh.position.x, mesh.position.y + 50, mesh.position.z + 90);
 
+    //Update Sun position
+    sunMesh.position.set(mesh.position.x - 100, mesh.position.y + 200, mesh.position.z - 1500);
+
     if (keyboard[86]) {  // V KEY to change to sideview, have to hold
         const targetRotation = 0; 
         cameraRotation = lerp(cameraRotation, targetRotation, 0.3);
@@ -331,8 +368,8 @@ function animate() {
 }
 
 function createObstacle(x, z) {
-    const obstacleHeight = 15;
-    const obstacleGeometry = new THREE.BoxGeometry(20, 15, 20);
+    const obstacleHeight = 30;
+    const obstacleGeometry = new THREE.BoxGeometry(20, 30, 25);
     const obstacleMesh = new THREE.MeshBasicMaterial( {color: 0x777777});
     const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMesh);
     obstacle.position.set(x, obstacleHeight / 2, z);
@@ -374,7 +411,7 @@ function jump() {
 }
 
 function updateScore(){
-    score += 100;
+    score += 10;
     document.getElementById('scoreContainer').innerText = 'Score: ' + score;
 }
 

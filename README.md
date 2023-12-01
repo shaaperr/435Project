@@ -24,4 +24,4 @@ We managed to implement all features of the game with Three.js. Some of the feat
 * Use the 'D' key to move to the character the right.
 * Use the 'W' key to make the character jump.
 * Use the left and right keys to move the camera around the character.
-* Use the 'V' key to toggle the camera back to the initial positon (which is behind the character)
+* Use the 'V' key to toggle the camera back to the initial positon (which is behind the character).

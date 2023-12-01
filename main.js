@@ -8,7 +8,8 @@ var camera;
 var scene;
 var light;
 var light2;
-var character = {height: 1.8, speed:0.6, turnSpeed:Math.PI*.02};
+var originalSpeed = 0.6;
+var character = {height: 1.8, speed:originalSpeed, turnSpeed:Math.PI*.02};
 var floorMesh;
 var floorLength = 25000;
 var isJumping = false;
@@ -21,6 +22,7 @@ let obstacleBoxes = [];
 let gameStarted = false;
 let acceleration  = 0.0001;
 var sunMesh;
+var scoreInterval;
 
 
 
@@ -33,18 +35,17 @@ function init() {
      document.getElementById('highScoreContainer').style.display = 'none';
      document.getElementById('gameOverScreen').style.display = 'none';
      document.getElementById('gameOverText').style.display = 'none';
+     document.getElementById('restartButton').style.display = 'none';
 
      // Set up button click event listener to start the game
      document.getElementById('startButton').addEventListener('click', startGame);
+     document.getElementById('restartButton').addEventListener('click', tryAgain);
  
      function startGame() { //ADDED FOR START SCREEN
         if (!gameStarted) {
             // Hide the start screen and button
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('startButton').style.display = 'none';
-
-            document.getElementById('gameOverScreen').style.display = 'none';
-            document.getElementById('gameOverText').style.display = 'none';
 
             // Show the score containers
             document.getElementById('scoreContainer').style.display = 'inline-block';
@@ -63,7 +64,7 @@ function init() {
                 renderEverything();
                 animate();
                 // Set interval to update score every 600 milliseconds, moved to wait until game starts to begin. Interval can be changed
-                setInterval(updateScore, 600);
+                scoreInterval = setInterval(updateScore, 600);
             }
             
         }
@@ -289,6 +290,32 @@ function init() {
 
         animate();
     }
+
+    function tryAgain() {
+        console.log("Hello");
+        mesh.position.set(0, character.height + 14, 0);
+        character.speed = originalSpeed;
+        
+        camera.position.set(0, 20, 90);
+        cameraRotation = 0
+        const radius = 90;
+        camera.position.set(
+            mesh.position.x + radius * Math.sin(cameraRotation),
+            mesh.position.y + 50,
+            mesh.position.z + radius * Math.cos(cameraRotation)
+        );
+
+        sunMesh.position.set(-100, 300, -2000);
+
+        document.getElementById('gameOverScreen').style.display = 'none';
+        document.getElementById('gameOverText').style.display = 'none';
+        document.getElementById('restartButton').style.display = 'none';
+
+        gameStarted = true;
+        score = 0;
+        scoreInterval = setInterval(updateScore, 600);
+        animate();
+    }
 }
     
 //For smooth lane change transitions and camera movement with v
@@ -420,6 +447,7 @@ function jump() {
 function updateScore(){
     score += 10;
     document.getElementById('scoreContainer').innerText = 'Score: ' + score;
+    if (score > highScore) { updateHighScore(); }
 }
 
 
@@ -437,11 +465,13 @@ function checkCollisions() {
             document.getElementById('gameOverScreen').style.display = 'flex';
             document.getElementById('gameOverText').style.display = 'flex';
             gameStarted = false;
-            
-            setTimeout(() => { document.getElementById('restartButton').style.display = 'flex'; }, 5000);
+            clearInterval(scoreInterval);
 
+            setTimeout(() => { document.getElementById('restartButton').style.display = 'flex'; }, 2000);
         }
     }
+
+
 }
 
 

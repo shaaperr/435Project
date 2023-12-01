@@ -79,6 +79,7 @@ function init() {
         const heightMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_height.png");
         const ambientMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_ao.png");
         const albedoMapTexture = new THREE.TextureLoader().load("./futuristic/futuristic-cube-metal_albedo.png");
+        const sunTexture = new THREE.TextureLoader().load("./textures/sunTexture.jpg");
         const geometry = new THREE.SphereGeometry(14, 20, 20);
 
             //environmentMap
@@ -198,7 +199,8 @@ function init() {
         //sun
         const sunGeo = new THREE.SphereGeometry(100, 64, 64);
         const sunMaterial = new THREE.MeshStandardMaterial({
-            color: "#FFDB58"
+            color: "#FFDB58",
+            //map: sunTexture
         });
         sunMesh = new THREE.Mesh(sunGeo, sunMaterial);
         sunMesh.position.set(-100, 300, -2000);

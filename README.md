@@ -1,6 +1,6 @@
 # Space Runner
 
-## What is space runner?
+## What is Space Runner?
 Space Runner is a 3D JavaScript runner game that uses WebGL with the help of a library (Three.js) and HTML/CSS for styling. A runner game is simply a game that has a character continously moving in a certain direction while avoidiing obstacles.
 
 ## Why We Chose This Project

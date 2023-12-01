@@ -17,8 +17,12 @@ var jumpHeight = 60;
 var isFalling = false;
 let score = 0;
 let highScore = 0;
-let obstacles = [];
-let obstacleBoxes = [];
+var obstacles = [];
+var obstacleBoxes = [];
+let renderedObstacles = [];
+let numRenderedObstacles = 0;
+var maxRenderedObstacles = 20;
+var renderDistance = 800;
 let gameStarted = false;
 let acceleration  = 0.0001;
 var sunMesh;
@@ -201,7 +205,7 @@ function init() {
         const sunGeo = new THREE.SphereGeometry(100, 64, 64);
         const sunMaterial = new THREE.MeshStandardMaterial({
             color: "#FFDB58",
-            //map: sunTexture
+            map: sunTexture
         });
         sunMesh = new THREE.Mesh(sunGeo, sunMaterial);
         sunMesh.position.set(-100, 300, -2000);
@@ -369,7 +373,6 @@ function animate() {
         mesh.position.z + radius * Math.cos(cameraRotation)
     );
     camera.lookAt(mesh.position);
-    
 
     if (keyboard[65]) { // A key for left
         if (mesh.position.x > -75) {
@@ -397,24 +400,75 @@ function animate() {
         isJumping = true;
         jump();
     }
-      // meshBound.copy(mesh.geometry.boundingSphere).applyMatrix4(mesh.matrixWorld);
+
+
+    let tempList = []; // creates a list of the closest obstacles
+    let closest = obstacles[0];
+    for (let i = 0; i < maxRenderedObstacles; i++) {
+        let closest = obstacles[0];
+        for (let obstacle of obstacles) {
+            if (!(tempList.includes(obstacle))
+            && mesh.position.distanceTo(obstacle.position) < mesh.position.distanceTo(closest.position)) {
+                closest = obstacle;
+            }
+        }
+        tempList.push(closest); // adds any obstacles that arent already rendered
+        if (!(renderedObstacles.includes(closest))) {
+            scene.add(closest);
+        }
+    }
+    
+
+    for (let obstacle of renderedObstacles) { // removes any obstacles that aren't close to the player
+        if (!(tempList.includes(obstacle))) {
+            scene.remove(obstacle);
+        }
+    }
+
+    renderedObstacles = [];
+    tempList.forEach((item) => renderedObstacles.push(item));
 
     checkCollisions();
     renderer.render(scene, camera);
 }
 
 function createObstacle(x, z) {
-    const obstacleHeight = 20; // Change obstacle height here
-    const obstacleGeometry = new THREE.BoxGeometry(20, obstacleHeight, 20);
-    const obstacleMesh = new THREE.MeshBasicMaterial( {color: 0x777777});
-    const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMesh);
-    obstacle.position.set(x, obstacleHeight / 2 + 3, z);
+    const obstacleColorMapTexture = new THREE.TextureLoader().load("./rock-047/Rock_047_BaseColor.jpg");
+    const obstacleNormalMapTexture = new THREE.TextureLoader().load("./rock-047/Rock_047_Normal.jpg");
+    const obstacleRoughnessMapTexture = new THREE.TextureLoader().load("./rock-047/Rock_047_Roughness.jpg");
+    const obstacleHeightMapTexture = new THREE.TextureLoader().load("./rock-047/Rock_047_Height.png");
+    const obstacleAmbientMapTexture = new THREE.TextureLoader().load("./rock-047/Rock_047_AmbientOcclusion.jpg");
+    
+    
+    const obstacleMaterial = new THREE.MeshStandardMaterial({
+        // color: "#FFFFFF",
+        map: obstacleColorMapTexture,
+        // map: obstacleAlbedoMapTexture,  // Set albedo texture as the color map
+        normalMap: obstacleNormalMapTexture,
+        roughnessMap: obstacleRoughnessMapTexture,
+        // emissiveMap: obstacleEmissiveMapTexture,
+        // metalnessMap: obstacleMetallicMapTexture,
+        aoMap: obstacleAmbientMapTexture,
+        displacementMap: obstacleHeightMapTexture,
+        displacementScale: 1.2,
+        //envMap: obstacleCubeRenderTarget.texture,
+        //wireframe:true
+        //metalness: 0.2
+    });
 
-    const obstacleBox = new  THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
-    obstacleBox.setFromObject(obstacle);
+
+    const obstacleHeight = 14; // Change obstacle height here
+    const obstacleGeometry = new THREE.SphereGeometry(16);
+    const obstacle = new THREE.Mesh(obstacleGeometry, obstacleMaterial);
+    obstacle.position.set(x, obstacleHeight / 2 + 15, z);
+    obstacles.push(obstacle);
+
+    //const obstacleBox = new  THREE.Box3(new THREE.Vector3(), new THREE.Vector3());
+    // obstacleBox.setFromObject(obstacle);
+    const obstacleBox = new THREE.Sphere(obstacle.position, obstacleHeight)
 
     obstacleBoxes.push(obstacleBox);
-    scene.add(obstacle);
+    // scene.add(obstacle);
 }
 
 function jump() {
@@ -462,7 +516,7 @@ function updateHighScore() {
 
 function checkCollisions() {
     for (var obstacle of obstacleBoxes) {
-        if (meshBound.intersectsBox(obstacle)) {
+        if (meshBound.intersectsSphere(obstacle)) {
             console.log("Intersects!");
             document.getElementById('gameOverScreen').style.display = 'flex';
             document.getElementById('gameOverText').style.display = 'flex';

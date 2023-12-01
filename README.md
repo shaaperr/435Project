@@ -10,17 +10,17 @@ To add our own spin to the concept, we created a space themed runner game that f
 
 ## Key Features of the Game
 We managed to implement all features of the game with Three.js. Some of the features include:
-&nbsp; 360 camera that circles around the character/sphere.
-&nbsp; Character control to move the character left, to the middle, and to the right. The character is also capable of jumping.
-&nbsp; Obstacles that the character must avoid to continue playing.
-&nbsp; Sun light source that projects light on the environment and all objects within it.
-&nbsp; Textures are added to the sun, path, and sphere for a more visually appealing experience.
-&nbsp; Score system that increases the user's points by 10 every 600 milliseconds. Also keeps up with the high score.
+  360 camera that circles around the character/sphere.
+  Character control to move the character left, to the middle, and to the right. The character is also capable of jumping.
+	Obstacles that the character must avoid to continue playing.
+ 	Sun light source that projects light on the environment and all objects within it.
+	Textures are added to the sun, path, and sphere for a more visually appealing experience.
+	Score system that increases the user's points by 10 every 600 milliseconds. Also keeps up with the high score.
 
 ## Controls
-&nbsp; Use the 'A' key to move the character to the left. 
-&nbsp; Use the 'S' key to move the charcater to the middle.
-&nbsp; Use the 'D' key to move to the character the right.
-&nbsp; Use the 'W' key to make the character jump.
-&nbsp; Use the left and right keys to move the camera around the character.
-&nbsp; Use the 'V' key to toggle the camera back to the initial positon (which is behind the character)
+	 Use the 'A' key to move the character to the left. 
+	 Use the 'S' key to move the charcater to the middle.
+	 Use the 'D' key to move to the character the right.
+	 Use the 'W' key to make the character jump.
+	 Use the left and right keys to move the camera around the character.
+	 Use the 'V' key to toggle the camera back to the initial positon (which is behind the character)

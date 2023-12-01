@@ -9,12 +9,12 @@ We wanted to recreate a few runner games that we are familiar with. Space Runner
 ## Results from Inspiration
 To add our own spin to the concept, we created a space themed runner game that follows a metal, rolling sphere (the character) that dodges obstacles. The obstacles are asteroids placed randomly about the rocky path the sphere rolls on.
 
-## Key Features of the Game
+## Key Features of the Game/Met Requirements
 We managed to implement all features of the game with Three.js. Some of the features include:
   * 360 camera that circles around the character/sphere.
   * Character control to move the character left, to the middle, and to the right. The character is also capable of jumping.
   * Obstacles that the character must avoid to continue playing.
-  * Sun light source that projects light on the environment and all objects within it.
+  * Sun light source that projects light on the environment and all objects within it. And a light source behind the character, allowing the player to see the sphere better.
   * Textures are added to the sun, path, and sphere for a more visually appealing experience.
   * Score system that increases the user's points by 10 every 600 milliseconds. Also keeps up with the high score.
 
